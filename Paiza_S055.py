@@ -1,7 +1,6 @@
 # coding: utf-8
 # 自分の得意な言語で
 # Let's チャレンジ！！
-
 # get H W
 input_line = input()
 input_array = input_line.split()
