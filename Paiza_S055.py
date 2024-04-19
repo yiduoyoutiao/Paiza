@@ -42,16 +42,29 @@ for start, end in P_matrix:
 # Breadth first search
 positions = {A_matrix[i][j]: (i, j) for i in range(len(A_matrix)) for j in range(len(A_matrix[0]))}
 
-from collections import defaultdict, deque
+from collections import defaultdict
 
 
 
 
 from collections import deque
 
-def bfs_update(matrix, graph, start_nodes):
+from collections import deque, defaultdict
+
+def bfs_update_with_dependencies(matrix, graph, start_nodes):
     queue = deque(start_nodes)
     visited = set(start_nodes)
+    # 初始化每个节点的依赖计数
+    dependencies_count = {node: 0 for node in graph}
+    for node in graph:
+        for child in graph[node]:
+            dependencies_count[child] += 1
+
+    # 只将依赖计数为0的节点加入初始队列
+    for node in list(queue):
+        if dependencies_count[node] != 0:
+            queue.remove(node)
+            visited.remove(node)
 
     while queue:
         current = queue.popleft()
@@ -63,21 +76,23 @@ def bfs_update(matrix, graph, start_nodes):
             for dx in [-1, 0, 1]:
                 for dy in [-1, 0, 1]:
                     if dx == 0 and dy == 0:
-                        continue  # 跳过自己
+                        continue
                     nx, ny = x + dx, y + dy
                     if 0 <= nx < len(matrix) and 0 <= ny < len(matrix[0]):
                         neighbor = matrix[nx][ny]
-                        # 检查邻居是否是当前节点的直接后继节点
                         if neighbor in graph[current]:
                             matrix[nx][ny] = '-'
 
-        # 将未访问的后继节点加入队列
+        # 处理完当前节点后，更新其子节点的依赖计数
         for neighbor in graph[current]:
-            if neighbor not in visited:
+            dependencies_count[neighbor] -= 1
+            # 如果子节点的依赖计数为0，加入队列
+            if dependencies_count[neighbor] == 0 and neighbor not in visited:
                 visited.add(neighbor)
                 queue.append(neighbor)
 
     return matrix
+
 
 
 
@@ -91,7 +106,7 @@ start_nodes = [node for node in graph if in_degrees[node] == 0]
 
 
 
-updated_matrix = bfs_update(A_matrix, graph, start_nodes)
+updated_matrix = bfs_update_with_dependencies(A_matrix, graph, start_nodes)
 
 for row in updated_matrix:
     # 将每行的元素转换为字符串，并用空格分隔
