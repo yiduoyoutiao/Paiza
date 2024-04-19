@@ -7,6 +7,6 @@ parts = input_line.split()
 A = int(parts[0])
 B = int(parts[1])
 
-cheapest = min(A,round(B*0.7))
+cheapest = min(A, round(B*0.7))
 
 print(cheapest)
